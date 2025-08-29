@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import routes from "./routes/index.js";
 import pool from "./database/pool-connect.js";
+import groupRoutes from "./routes/groups.js";
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.listen(PORT, ()=>{
 });
 
 app.use("/", routes);
+app.use("/groups",groupRoutes);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

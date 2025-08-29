@@ -1,19 +1,28 @@
 import { Router, Request, Response } from "express";
 import pool from "../database/pool-connect.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { AuthRequest ,userAuthorization,verifyToken} from "../middleware/auth.js";
+import { generateAccessToken, TOKEN_EXPIRY_MS } from "../utils/jwt.js";
 
 const router = Router();
+dotenv.config();
 
 router.post("/signup", async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
 
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ error: "name, email and password are required" });
+    }
+
     const isExistingUser = await pool.query(
       "SELECT * FROM users WHERE email=$1",
       [email]
     );
-    console.log(isExistingUser, "isExistingUser");
+
     if (isExistingUser.rows.length > 0) {
       return res.status(409).send("User Already Exist!");
     }
@@ -25,49 +34,43 @@ router.post("/signup", async (req: Request, res: Response) => {
       [name, email, hashPassword]
     );
 
-    res.status(200).json(newUser.rows[0]);
+    res.status(201).json(newUser.rows[0]);
   } catch (error) {
     res.status(500).send("Something went wrong. Please try again later!");
   }
 });
 
 router.post("/login", async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (result.rows.length === 0) return res.status(400).json({ error: "Invalid credentials" });
 
-    const user = await pool.query("SELECT * from users where email=$1", [
-      email,
-    ]);
+    const user = result.rows[0];
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) return res.status(400).json({ error: "Invalid credentials" });
 
-    if (user.rows.length === 0) {
-      return res.status(400).json({ error: "Invalid Credentials" });
-    }
+    // Generate token
+    const payload = { id: user.id, email: user.email };
+    const token = generateAccessToken(payload);
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + TOKEN_EXPIRY_MS);
 
-    const validPass = await bcrypt.compare(password, user.rows[0].password);
-    if (!validPass) {
-      return res.status(400).json({ error: "Invalid Credentials" });
-    }
-
-    const token = jwt.sign(
-      { id: user.rows[0].id },
-      process.env.JWT_SECRET as string,
-      { expiresIn: "1h" }
+    // Store token in users table
+    await pool.query(
+      "UPDATE users SET token = $1, token_generated_at = $2, token_expires_at = $3 WHERE id = $4",
+      [token, now, expiresAt, user.id]
     );
 
-    res.json({
-      token,
-      user: {
-        id: user.rows[0].id,
-        name: user.rows[0].name,
-        email: user.rows[0].email,
-      },
-    });
-  } catch (error) {
-    res.status(500).send("Something went wrong. Please try again later!");
+    res.json({message:"Login Sucessful", token, token_expires_at: expiresAt });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.get("/getallUsers", async (req: Request, res: Response) => {
+router.get("/getallUsers", verifyToken, userAuthorization, async (req: Request, res: Response) => {
   try {
     const allUsers = await pool.query("SELECT * FROM users");
 
@@ -88,6 +91,19 @@ router.get("/getUser/:email", async (req: Request, res: Response) => {
     return res.status(404).send("User not Found!");
   }
   res.status(200).send(user.rows);
+});
+
+router.get("/profile", verifyToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, name, email, created_at FROM users WHERE id = $1",
+      [req.user?.id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 export default router;
