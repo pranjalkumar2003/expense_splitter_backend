@@ -1,9 +1,9 @@
 import express,{Request, Response} from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import routes from "./routes/index.js";
-import pool from "./database/pool-connect.js";
-import groupRoutes from "./routes/groups.js";
+import routes from "./routes/authentication";
+import pool from "./database/pool-connect";
+import groupRoutes from "./routes/groups";
 
 dotenv.config();
 const app = express();

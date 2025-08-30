@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { verifyTKN as verifyJWT } from "../utils/jwt.js";
-import pool from "../database/pool-connect.js";
+import { verifyTKN as verifyJWT } from "../utils/jwt";
+import pool from "../database/pool-connect";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
@@ -53,7 +53,6 @@ export const verifyToken = async (
     );
 
     if (result.rows.length === 0){
-        console.log("inside if");
       return res.status(404).json({ error: "User not found" });
     }
 
@@ -94,7 +93,6 @@ export const userAuthorization = async (
     }
     next();
   } catch (err) {
-    console.error("Authorization error:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 };
