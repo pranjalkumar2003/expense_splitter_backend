@@ -22,5 +22,45 @@ export const getAllGroups = async () => {
 
 export const getGroupById = async (id: number | string) => {
   const result = await pool.query("SELECT * FROM groups WHERE id=$1", [id]);
-  return result.rows[0];
+  return result;
+};
+
+export const getGroupByName = async (name: string) => {
+  const result = await pool.query("SELECT * FROM groups WHERE name=$1", [name]);
+  return result;
+};
+
+export const getGroupMemberById = async (group_id: number) => {
+  const result = await pool.query(
+    "SELECT * FROM group_members WHERE group_id=$1",
+    [group_id]
+  );
+  return result;
+};
+
+export const getGroupMemberByName = async (group_name: string) => {
+  const result = await pool.query(
+    "SELECT * FROM group_members WHERE group_name=$1",
+    [group_name]
+  );
+  return result;
+};
+
+export const getAllGroupMember = async () => {
+  const result = await pool.query("SELECT * FROM group_members");
+  return result;
+};
+
+export const addGroupMembers = async (
+  group_id: number,
+  user_id: number,
+  group_name: string,
+  user_name: string,
+  user_email: string
+) => {
+  const result = await pool.query(
+    "INSERT INTO group_members (group_id,user_id,group_name,user_name,user_email) VALUES ($1,$2,$3,$4,$5) RETURNING id,user_email ",
+    [group_id, user_id, group_name, user_name, user_email]
+  );
+  return result;
 };

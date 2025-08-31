@@ -105,7 +105,7 @@ export const getUserByEmailIdController = async (
   const { email } = req.params;
   try {
     const User = await getUserByEmail(email);
-    res.status(200).json(User);
+    res.status(200).json(User.rows[0]);
   } catch (error) {
     res.status(500).send("Something went wrong. Please try again later!");
   }
