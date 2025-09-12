@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import routes from "./routes/authentication";
 import pool from "./database/pool-connect";
 import groupRoutes from "./routes/groups";
+import expensesRoutes from "./routes/expenses";
 
 dotenv.config();
 const app = express();
@@ -22,6 +23,7 @@ app.listen(PORT, ()=>{
 
 app.use("/", routes);
 app.use("/groups",groupRoutes);
+app.use("/groups",expensesRoutes);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

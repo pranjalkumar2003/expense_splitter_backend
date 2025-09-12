@@ -38,6 +38,18 @@ export const getGroupMemberById = async (group_id: number) => {
   return result;
 };
 
+export const getMemberofGroupById = async (
+  user_id: number,
+  group_id: number | string
+) => {
+  console.log(user_id, group_id);
+  const result = await pool.query(
+    "SELECT * FROM group_members WHERE user_id = $1 AND group_id = $2",
+    [user_id, group_id]
+  );
+  return result;
+};
+
 export const getGroupMemberByName = async (group_name: string) => {
   const result = await pool.query(
     "SELECT * FROM group_members WHERE group_name=$1",
