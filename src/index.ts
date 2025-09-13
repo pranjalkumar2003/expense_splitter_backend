@@ -22,9 +22,9 @@ app.listen(PORT, ()=>{
      console.log(`Backend application running at port ${PORT} 🚀`);
 });
 
-app.use("/", routes);
-app.use("/groups",groupRoutes);
-app.use("/groups",expensesRoutes);
+app.use("/api/auth", routes);
+app.use("/api/groups",groupRoutes);
+app.use("/api/groups",expensesRoutes);
 app.use("/api/balance", balanceRoutes);
 
 app.use(express.urlencoded({ extended: true }));

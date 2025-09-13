@@ -12,6 +12,7 @@ import {
 } from "../models/group-model";
 
 import { getUserByEmail, getUserById } from "../models/authenication-model";
+import { sendGroupInviteEmail } from "../utils/mailer";
 
 //#region Create Group
 export const createGroupController = async (
@@ -118,6 +119,7 @@ export const AddGroupMemberController = async (
       isUserExist!.rows[0].email
     );
     if (result.rowCount && result.rowCount > 0) {
+      sendGroupInviteEmail(isUserExist!.rows[0].email,isGroupExist.rows[0].name,"here")
       res.status(201).json({ message: "Member Added Suceessfully"});
     } else {
       res.status(400).json({ error: "Something went wrong. Please try again later!" });
