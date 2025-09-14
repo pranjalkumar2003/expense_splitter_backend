@@ -2,9 +2,7 @@ import pool from "../database/pool-connect";
 import { generateAccessToken, TOKEN_EXPIRY_MS } from "../utils/jwt";
 
 export const isUserActive = async (email: string) => {
-  return await pool.query(
-    "SELECT isactive FROM users where email=$1",[email]
-  );
+  return await pool.query("SELECT isactive FROM users where email=$1", [email]);
 };
 
 export const generateTokenForUser = async (result: any) => {
@@ -96,4 +94,10 @@ export const getUserById = async (id: number) => {
     [id]
   );
   return result;
+};
+
+export const userDeactivation = async (email: string) => {
+  return await pool.query("UPDATE users SET isactive = 0 WHERE email = $1 RETURNING email", [
+    email,
+  ]);
 };

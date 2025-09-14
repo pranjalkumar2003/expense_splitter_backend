@@ -1,6 +1,7 @@
 import {
   acceptInviteController,
   addUserController,
+  deactivateUserController,
   getAllUsersController,
   getUserByEmailIdController,
   loginController,
@@ -12,18 +13,20 @@ import { userAuthorization, verifyToken } from "../middleware/auth";
 
 const router = Router();
 
-router.post( "/addUser", verifyToken, userAuthorization, addUserController);
+router.post( "/user/add", verifyToken, userAuthorization, addUserController);
 
-router.get("/verify-invite/:token", verifyInviteController);
+router.get("/user/verify-invite/:token", verifyInviteController);
 
-router.post("/accept-invite", acceptInviteController);
+router.post("/user/accept-invite", acceptInviteController);
 
-router.get( "/User", verifyToken, userAuthorization, getAllUsersController);
+router.get( "/user", verifyToken, userAuthorization, getAllUsersController);
 
-router.get( "/User/:email", verifyToken, userAuthorization, getUserByEmailIdController);
+router.get( "/user/:email", verifyToken, userAuthorization, getUserByEmailIdController);
 
-router.post("/login", loginController);
+router.post("/user/login", loginController);
 
-router.post("/logout", verifyToken, logoutController);
+router.post("/user/logout", verifyToken, logoutController);
+
+router.post("/user/deactivate",verifyToken, userAuthorization,deactivateUserController);
 
 export default router;

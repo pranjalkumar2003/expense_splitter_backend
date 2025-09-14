@@ -4,9 +4,9 @@ import { Router } from "express";
 
 const router = Router();
 
-router.post("/:id/expenses",AddExpensesController);
+router.post("/:groupId",AddExpensesController);
 
-router.get("/:id/expenses",getAllGroupExpensesController);
+router.get("/:groupId",getAllGroupExpensesController);
 
 
 export default router;

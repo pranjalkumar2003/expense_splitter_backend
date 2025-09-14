@@ -42,7 +42,6 @@ export const getMemberofGroupById = async (
   user_id: number,
   group_id: number | string
 ) => {
-  console.log(user_id, group_id);
   const result = await pool.query(
     "SELECT * FROM group_members WHERE user_id = $1 AND group_id = $2",
     [user_id, group_id]

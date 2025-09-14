@@ -8,8 +8,9 @@ export const AddExpenses = async (
   amount: number,
   description: string
 ) => {
+  console.log(group_id,group_name,member_id,member_name,amount);
   const result = await pool.query(
-    `INSERT INTO expenses (group_id,group_name, member_id , member_name, amount, description) 
+    `INSERT INTO expenses (group_id,group_name, member_id , member_name, paid_amount, description) 
        VALUES ($1,$2, $3, $4, $5, $6) RETURNING *`,
     [group_id, group_name, member_id, member_name, amount, description || null]
   );
@@ -18,11 +19,10 @@ export const AddExpenses = async (
 
 export const GetAllgroupExpenses = async (
   group_id: number | string,
-  group_name?: string,
+  group_name?: string
 ) => {
-  const result = await pool.query(
-    "SELECT * FROM expenses WHERE group_id=$1",
-    [group_id]
-  );
+  const result = await pool.query("SELECT * FROM expenses WHERE group_id=$1", [
+    group_id,
+  ]);
   return result;
 };

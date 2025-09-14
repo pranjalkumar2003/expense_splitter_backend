@@ -15,6 +15,7 @@ import {
   isValidInviteToken,
   setUserPassword,
   isUserActive,
+  userDeactivation,
 } from "../models/authenication-model";
 import { sendInviteEmail } from "../utils/mailer";
 
@@ -64,6 +65,7 @@ export const addUserController = async (req: Request, res: Response) => {
   }
 };
 
+// #region signUp
 export const verifyInviteController = async (req: Request, res: Response) => {
   const { token } = req.params;
 
@@ -178,6 +180,27 @@ export const getUserByEmailIdController = async (
       res.status(400).json({ error: "User Doesn't exist!" });
     }
     res.status(200).json(User.rows[0]);
+  } catch (error) {
+    res.status(500).send("Something went wrong. Please try again later!");
+  }
+};
+
+// #region mark user Inactive
+export const deactivateUserController = async (req: AuthRequest, res: Response) => {
+  try {
+    const { email, reason } = req.body;
+    if (!email) {
+      res.status(400).json({ error: "Enter email for user Deactivation" });
+    }
+    const User = await getUserByEmail(email);
+    if (User.rowCount === 0) {
+      res.status(400).json({ error: "User Doesn't exist!" });
+    }
+    if (!reason) {
+      res.status(400).json({ error: "Enter reson for user Deactivation" });
+    }
+    const result = await userDeactivation(email);
+    res.status(200).json({result: result.rows[0].email, message:"User marked Inactive"});
   } catch (error) {
     res.status(500).send("Something went wrong. Please try again later!");
   }
